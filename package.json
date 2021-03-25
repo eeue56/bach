@@ -8,7 +8,6 @@
     "build": "tsc -p tsconfig.json"
   },
   "bin": "build/bach.js",
-  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/eeue56/bach.git"
