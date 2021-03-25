@@ -7,7 +7,7 @@
     "test": "ts-node src/bach.ts",
     "build": "tsc -p tsconfig.json"
   },
-  "bin": "src/bach.ts",
+  "bin": "build/bach.js",
   "type": "module",
   "repository": {
     "type": "git",
