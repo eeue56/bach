@@ -1,19 +1,18 @@
 import * as assert from "assert";
 
-
-export function testBasicAddition(){
+export function testBasicAddition() {
     assert.equal(2, 1 + 1);
 }
 
-export function testObjectEquality(){
+export function testObjectEquality() {
     const user = {
         name: "noah",
         age: 28,
         pets: [
             {
-                name: "burt"
-            }
-        ]
+                name: "burt",
+            },
+        ],
     };
 
     const otherInstanceOfUser = {
@@ -21,9 +20,9 @@ export function testObjectEquality(){
         age: 28,
         pets: [
             {
-                name: "burt"
-            }
-        ]
+                name: "burt",
+            },
+        ],
     };
 
     assert.deepStrictEqual(user, otherInstanceOfUser);
@@ -31,7 +30,7 @@ export function testObjectEquality(){
 
 export async function testAsyncFunctions() {
     return new Promise((resolve, reject) => {
-        setTimeout(()=> {
+        setTimeout(() => {
             try {
                 assert.equal("hello", "hello");
             } catch (e) {

@@ -24,7 +24,7 @@ async function getFiles(dir: string): Promise<string[]> {
     return Array.prototype.concat(...files);
 }
 
-const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
+const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
 function isAsyncFunction(func: any): boolean {
     return Object.getPrototypeOf(func).constructor === AsyncFunction;
@@ -68,12 +68,10 @@ export async function runner(): Promise<any> {
                         }
                         passedTests += 1;
                     } catch (e) {
-                        console.error(
-                            `${fileName} ${functionName} failed.`
-                        );
+                        console.error(`${fileName} ${functionName} failed.`);
                         console.error(e);
                     }
-                };
+                }
 
                 resolve(null);
             });

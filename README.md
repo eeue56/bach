@@ -4,6 +4,8 @@ A very simple TypeScript test runner inspired by Pytest.
 
 Looks in tsconfig.include for files ending with `test`. Look in those files for functions starting with `test`, and run them. Async functions are run with `await`. Use the [assert](https://nodejs.org/api/assert.html) module for writing assertions. The return result is ignored.
 
+Part of the [Hiraeth](https://github.com/eeue56/hiraeth) collection.
+
 ## Installation
 
 Requires ts-node to be installed.
