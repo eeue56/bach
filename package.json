@@ -25,6 +25,7 @@
     },
     "homepage": "https://github.com/eeue56/bach#readme",
     "dependencies": {
+        "@eeue56/baner": "^0.0.1",
         "@types/node": "^14.14.35",
         "fast-glob": "^3.2.5",
         "json5": "^2.2.0",

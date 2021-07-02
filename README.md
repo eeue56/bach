@@ -20,6 +20,15 @@ Make sure your tsconfig has `include` set up correctly. Then you can run bach vi
 
 See [bach_test.ts](src/bach_test.ts) for example usage.
 
+You can also specify specific files or functions to run via flags:
+
+```
+  --function [string...]:		Run a specific function
+  --file [string...]:		    Run a specific file
+  -h, --help :		            Displays help message
+
+```
+
 ## Name
 
 Bach means "small" or "little" in Welsh. It is also used as an affectionate term, much like "love" or "dear" in English. I named it bach, because I wanted the smallest possible test runner that still gave useful output.
