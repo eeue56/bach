@@ -56,6 +56,9 @@ export async function runner(): Promise<any> {
         ? fileNamesToRun
         : await glob(config.include, { absolute: true });
 
+    const results: { [filename: string]: { [functionName: string]: boolean } } =
+        {};
+
     let passedTests = 0;
     let totalTests = 0;
 
@@ -72,6 +75,7 @@ export async function runner(): Promise<any> {
                     return resolve(null);
                 }
 
+                results[fileName] = {};
                 console.log(`Found ${fileName}`);
                 const imported = await import(fileName);
                 for (const functionName of Object.keys(imported)) {
@@ -93,8 +97,10 @@ export async function runner(): Promise<any> {
                         } else {
                             func();
                         }
+                        results[fileName][functionName] = true;
                         passedTests += 1;
                     } catch (e) {
+                        results[fileName][functionName] = false;
                         console.error(`${fileName} ${functionName} failed.`);
                         console.error(e);
                     }
@@ -104,6 +110,26 @@ export async function runner(): Promise<any> {
             });
         })
     );
+
+    const formattedResults: {
+        fileName: string;
+        passed: number;
+        failed: number;
+    }[] = Object.entries(results).map(([ fileName, functions ]) => {
+        let passed = 0;
+        Object.entries(functions).forEach(([ functionName, didPass ]) => {
+            if (didPass) passed += 1;
+        });
+        const failed = Object.keys(functions).length - passed;
+
+        return {
+            fileName,
+            passed,
+            failed,
+        };
+    });
+
+    console.table(formattedResults);
 
     console.log(
         `Ran ${totalTests} tests. ${passedTests} tests passed, ${
