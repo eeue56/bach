@@ -1,11 +1,4 @@
 #!/usr/bin/env ts-node
-import * as path from "path";
-
-import * as fs from "fs";
-import { promises as fsPromises } from "fs";
-
-import glob from "fast-glob";
-import JSON5 from "json5";
 import {
     bothFlag,
     empty,
@@ -16,6 +9,11 @@ import {
     string,
     variableList,
 } from "@eeue56/baner";
+import glob from "fast-glob";
+import { promises as fsPromises } from "fs";
+import JSON5 from "json5";
+import * as path from "path";
+import { performance } from "perf_hooks";
 
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
@@ -61,6 +59,7 @@ export async function runner(): Promise<any> {
 
     let passedTests = 0;
     let totalTests = 0;
+    const startTime = performance.now();
 
     await Promise.all(
         files.map(async (fileName) => {
@@ -111,6 +110,8 @@ export async function runner(): Promise<any> {
         })
     );
 
+    const endTime = performance.now();
+
     const formattedResults: {
         fileName: string;
         passed: number;
@@ -132,9 +133,9 @@ export async function runner(): Promise<any> {
     console.table(formattedResults);
 
     console.log(
-        `Ran ${totalTests} tests. ${passedTests} tests passed, ${
-            totalTests - passedTests
-        } failed`
+        `Ran ${totalTests} tests in ${Math.floor(
+            endTime - startTime
+        )}ms. ${passedTests} tests passed, ${totalTests - passedTests} failed`
     );
 }
 

@@ -1,7 +1,7 @@
-import * as assert from "assert";
+import * as assert from "@eeue56/ts-assert";
 
 export function testBasicAddition() {
-    assert.equal(2, 1 + 1);
+    assert.strictEqual(2, 1 + 1);
 }
 
 export function testObjectEquality() {
@@ -32,7 +32,7 @@ export async function testAsyncFunctions() {
     return new Promise((resolve, reject) => {
         setTimeout(() => {
             try {
-                assert.equal("hello", "hello");
+                assert.strictEqual("hello", "hello");
             } catch (e) {
                 return reject(e);
             }

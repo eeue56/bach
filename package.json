@@ -32,6 +32,7 @@
         "typescript": "^4.2.3"
     },
     "devDependencies": {
+        "@eeue56/ts-assert": "^0.0.2",
         "prettier": "github:eeue56/prettier#feat/spacing-around-square-brackets"
     }
 }
