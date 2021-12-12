@@ -137,6 +137,10 @@ export async function runner(): Promise<any> {
             endTime - startTime
         )}ms. ${passedTests} tests passed, ${totalTests - passedTests} failed`
     );
+
+    if (totalTests - passedTests > 0) {
+        process.exit(1);
+    }
 }
 
 if (require.main === module) {
