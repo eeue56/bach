@@ -69,8 +69,11 @@ export async function runner(): Promise<any> {
                         ? path.join(process.cwd(), fileName)
                         : fileName;
                 const splitName = fileName.split(".");
+                const extension = splitName[splitName.length - 1];
+                const isValidExtension =
+                    extension === "js" || extension === "ts";
 
-                if (!splitName[0].endsWith("test")) {
+                if (!splitName[0].endsWith("test") || !isValidExtension) {
                     return resolve(null);
                 }
 
