@@ -1,6 +1,6 @@
 {
     "name": "@eeue56/bach",
-    "version": "0.0.8",
+    "version": "0.0.9",
     "description": "A simple TypeScript test runner inspired by Pytest.",
     "main": "src/bach.ts",
     "scripts": {
