@@ -2,7 +2,7 @@
     "name": "@eeue56/bach",
     "version": "0.0.9",
     "description": "A simple TypeScript test runner inspired by Pytest.",
-    "main": "src/bach.ts",
+    "main": "src/bach.js",
     "scripts": {
         "test": "ts-node src/bach.ts",
         "build": "tsc -p tsconfig.json",
