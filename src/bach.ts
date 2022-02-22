@@ -25,6 +25,11 @@ export async function runner(): Promise<any> {
     const cliParser = parser([
         longFlag("function", "Run a specific function", variableList(string())),
         longFlag("file", "Run a specific file", variableList(string())),
+        longFlag(
+            "clean-exit",
+            "Don't use process.exit even if tests fail",
+            empty()
+        ),
         bothFlag("h", "help", "Displays help message", empty()),
     ]);
 
@@ -141,7 +146,10 @@ export async function runner(): Promise<any> {
         )}ms. ${passedTests} tests passed, ${totalTests - passedTests} failed`
     );
 
-    if (totalTests - passedTests > 0) {
+    if (
+        totalTests - passedTests > 0 &&
+        !program.flags["clean-exit"].isPresent
+    ) {
         process.exit(1);
     }
 }
