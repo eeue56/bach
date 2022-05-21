@@ -30,6 +30,7 @@ export async function runner(): Promise<any> {
             "Don't use process.exit even if tests fail",
             empty()
         ),
+        longFlag("only-fails", "Only show the tests that fail", empty()),
         bothFlag("h", "help", "Displays help message", empty()),
     ]);
 
@@ -39,6 +40,8 @@ export async function runner(): Promise<any> {
         console.log(help(cliParser));
         return;
     }
+
+    const onlyFails = program.flags["only-fails"].isPresent;
 
     const functionNamesToRun: string[] | null =
         program.flags.function.arguments.kind === "ok"
@@ -97,7 +100,9 @@ export async function runner(): Promise<any> {
                     const isAsync = isAsyncFunction(func);
 
                     totalTests += 1;
-                    console.log(`Running ${functionName}`);
+
+                    if (!onlyFails) console.log(`Running ${functionName}`);
+
                     try {
                         if (isAsync) {
                             await func();
@@ -138,7 +143,11 @@ export async function runner(): Promise<any> {
         };
     });
 
-    console.table(formattedResults);
+    if (onlyFails) {
+        console.table(formattedResults.filter((result) => result.failed > 0));
+    } else {
+        console.table(formattedResults);
+    }
 
     console.log(
         `Ran ${totalTests} tests in ${Math.floor(
