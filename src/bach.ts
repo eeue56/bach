@@ -4,6 +4,7 @@ import {
     empty,
     help,
     longFlag,
+    number,
     parse,
     parser,
     string,
@@ -31,6 +32,12 @@ export async function runner(): Promise<any> {
             empty()
         ),
         longFlag("only-fails", "Only show the tests that fail", empty()),
+        longFlag(
+            "in-chunks",
+            "Run tests in chunks of N files (suitable for lower memory impact)",
+            number()
+        ),
+        longFlag("chunk-start", "Start running chunk at N", number()),
         bothFlag("h", "help", "Displays help message", empty()),
     ]);
 
@@ -67,10 +74,21 @@ export async function runner(): Promise<any> {
 
     let passedTests = 0;
     let totalTests = 0;
+
+    const chunks = program.flags["in-chunks"].isPresent
+        ? (program.flags["in-chunks"].arguments as any).value
+        : files.length;
+
+    const chunkStart = program.flags["chunk-start"].isPresent
+        ? (program.flags["chunk-start"].arguments as any).value
+        : 0;
+
     const startTime = performance.now();
 
+    const filesToProcess = files.slice(chunkStart, chunkStart + chunks);
+
     await Promise.all(
-        files.map(async (fileName) => {
+        filesToProcess.map(async (fileName) => {
             return new Promise(async (resolve, reject) => {
                 fileName =
                     program.flags.file.arguments.kind === "ok"
@@ -122,6 +140,13 @@ export async function runner(): Promise<any> {
             });
         })
     );
+    if (filesToProcess.length < files.length) {
+        console.log(
+            `Ran ${chunks} files, starting at ${chunkStart}, out of ${
+                files.length
+            } total. New start should be ${chunkStart + chunks}`
+        );
+    }
 
     const endTime = performance.now();
 

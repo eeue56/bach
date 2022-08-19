@@ -27,6 +27,10 @@ You can also specify specific files or functions to run via flags:
   --file [string...]:		    Run a specific file
   --clean-exit:             Don't use process.exit even if tests fail
   --only-fails :		        Only show the tests that fail
+  --in-chunks number:           Run tests in chunks of N files (suitable for lower memory impact)
+  --chunk-start number:         Start running chunk at N
+
+
   -h, --help :		          Displays help message
 
 ```
