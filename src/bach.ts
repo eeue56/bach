@@ -63,7 +63,19 @@ export async function runner(): Promise<any> {
     console.log("Looking for tsconfig...");
     const strConfig = (await fsPromises.readFile("./tsconfig.json")).toString();
     const config = JSON5.parse(strConfig);
-    console.log(`Looking for tests in ${config.include}...`);
+
+    if (!fileNamesToRun) {
+        console.log(`Looking for tests in ${config.include}...`);
+        if (!config.include) {
+            console.error(
+                "include was not set in tsconfig, not sure where to look for tests"
+            );
+            console.error("Quitting...");
+            return;
+        }
+    } else {
+        console.log("Running provided filenames...");
+    }
 
     const files = fileNamesToRun
         ? fileNamesToRun
