@@ -162,28 +162,55 @@ export async function runner(): Promise<any> {
 
     const endTime = performance.now();
 
-    const formattedResults: {
-        fileName: string;
-        passed: number;
-        failed: number;
-    }[] = Object.entries(results).map(([ fileName, functions ]) => {
-        let passed = 0;
-        Object.entries(functions).forEach(([ functionName, didPass ]) => {
-            if (didPass) passed += 1;
-        });
-        const failed = Object.keys(functions).length - passed;
+    if (program.flags["file"].isPresent) {
+        const formattedResults: {
+            functionName: string;
+            passed: boolean;
+        }[] = [ ];
 
-        return {
-            fileName,
-            passed,
-            failed,
-        };
-    });
+        for (const fileName of Object.keys(results)) {
+            const functions = results[fileName];
 
-    if (onlyFails) {
-        console.table(formattedResults.filter((result) => result.failed > 0));
+            for (const functionName of Object.keys(functions)) {
+                formattedResults.push({
+                    functionName,
+                    passed: functions[functionName],
+                });
+            }
+        }
+        if (onlyFails) {
+            console.table(
+                formattedResults.filter((result) => result.passed === false)
+            );
+        } else {
+            console.table(formattedResults);
+        }
     } else {
-        console.table(formattedResults);
+        const formattedResults: {
+            fileName: string;
+            passed: number;
+            failed: number;
+        }[] = Object.entries(results).map(([ fileName, functions ]) => {
+            let passed = 0;
+            Object.entries(functions).forEach(([ functionName, didPass ]) => {
+                if (didPass) passed += 1;
+            });
+            const failed = Object.keys(functions).length - passed;
+
+            return {
+                fileName,
+                passed,
+                failed,
+            };
+        });
+
+        if (onlyFails) {
+            console.table(
+                formattedResults.filter((result) => result.failed > 0)
+            );
+        } else {
+            console.table(formattedResults);
+        }
     }
 
     console.log(
