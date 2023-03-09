@@ -100,18 +100,23 @@ export async function runner(): Promise<any> {
     const filesToProcess = files.slice(chunkStart, chunkStart + chunks);
 
     await Promise.all(
-        filesToProcess.map(async (fileName) => {
-            return new Promise(async (resolve, reject) => {
+        filesToProcess.map(async (fileName: string): Promise<null> => {
+            return new Promise(async (resolve, reject): Promise<void> => {
                 fileName =
                     program.flags.file.arguments.kind === "ok"
                         ? path.join(process.cwd(), fileName)
                         : fileName;
-                const splitName = fileName.split(".");
-                const extension = splitName[splitName.length - 1];
-                const isValidExtension =
-                    extension === "js" || extension === "ts";
+                const baseFileName = path
+                    .basename(fileName)
+                    .split(".")
+                    .slice(0, -1)
+                    .join(".");
 
-                if (!splitName[0].endsWith("test") || !isValidExtension) {
+                const extension = path.extname(fileName);
+                const isValidExtension =
+                    extension === ".js" || extension === ".ts";
+
+                if (!baseFileName.endsWith("test") || !isValidExtension) {
                     return resolve(null);
                 }
 
