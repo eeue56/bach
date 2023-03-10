@@ -135,7 +135,9 @@ function viewSingleFileResult(
 ): void {
     console.log(
         leftJoin +
-            horizontal.repeat(tableWidth.functionName + tableWidth.passed + 1) +
+            horizontal.repeat(tableWidth.functionName) +
+            middleJoin +
+            horizontal.repeat(tableWidth.passed) +
             rightJoin
     );
 
@@ -185,7 +187,8 @@ function viewSingleFileResults(results: SingleFileResult[]): void {
     }
     console.log(
         bottomLeftCorner +
-            horizontal.repeat(tableWidth.functionName + tableWidth.passed + 1) +
+            horizontal.repeat(tableWidth.functionName) +
+            horizontal.repeat(tableWidth.passed + 1) +
             bottomRightCorner
     );
 }
@@ -196,9 +199,11 @@ function viewMultipleFileResult(
 ): void {
     console.log(
         leftJoin +
-            horizontal.repeat(
-                tableWidth.fileName + tableWidth.passed + tableWidth.failed + 2
-            ) +
+            horizontal.repeat(tableWidth.fileName) +
+            middleJoin +
+            horizontal.repeat(tableWidth.passed) +
+            middleJoin +
+            horizontal.repeat(tableWidth.failed) +
             rightJoin
     );
 
