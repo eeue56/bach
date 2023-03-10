@@ -10,14 +10,11 @@ import {
     string,
     variableList,
 } from "@eeue56/baner";
-import * as chalkImport from "chalk";
 import glob from "fast-glob";
 import { promises as fsPromises } from "fs";
 import JSON5 from "json5";
 import * as path from "path";
 import { performance } from "perf_hooks";
-
-const chalk = new chalkImport.Instance();
 
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
@@ -41,6 +38,15 @@ type MultipleFileCellSizes = {
     fileName: number;
     passed: number;
     failed: number;
+};
+
+const chalk = {
+    red: function (text: string): string {
+        return `\x1b[31m${text}\x1b[0m`;
+    },
+    green: function (text: string): string {
+        return `\x1b[32m\x1b[1m${text}\x1b[0m`;
+    },
 };
 
 function widestSingleFileCellSizes(
@@ -144,7 +150,7 @@ function viewSingleFileResult(
     );
 
     const colouredFunctionName = result.passed
-        ? chalk.greenBright(
+        ? chalk.green(
               centerAndPadding(
                   tableWidth.functionName,
                   `${result.functionName}`
@@ -158,9 +164,7 @@ function viewSingleFileResult(
           );
 
     const colouredPassed = result.passed
-        ? chalk.greenBright(
-              centerAndPadding(tableWidth.passed, `${result.passed}`)
-          )
+        ? chalk.green(centerAndPadding(tableWidth.passed, `${result.passed}`))
         : chalk.red(centerAndPadding(tableWidth.passed, `${result.passed}`));
 
     console.log(
@@ -211,7 +215,7 @@ function viewMultipleFileResult(
 
     const colouredFileName =
         result.failed === 0
-            ? chalk.greenBright(
+            ? chalk.green(
                   centerAndPadding(tableWidth.fileName, `${result.fileName}`)
               )
             : chalk.red(
@@ -220,7 +224,7 @@ function viewMultipleFileResult(
 
     const colouredPassed =
         result.passed > 0
-            ? chalk.greenBright(
+            ? chalk.green(
                   centerAndPadding(tableWidth.passed, `${result.passed}`)
               )
             : chalk.red(
@@ -229,7 +233,7 @@ function viewMultipleFileResult(
 
     const colouredFailed =
         result.failed === 0
-            ? chalk.greenBright(
+            ? chalk.green(
                   centerAndPadding(tableWidth.failed, `${result.failed}`)
               )
             : chalk.red(
