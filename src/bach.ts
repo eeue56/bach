@@ -173,28 +173,28 @@ function viewSingleFileResult(
 }
 
 function viewSingleFileResults(results: SingleFileResult[]): void {
-    const tableWidth = widestSingleFileCellSizes(results);
+    const cellSizes = widestSingleFileCellSizes(results);
     const headers =
         vertical +
-        centerAndPadding(tableWidth.functionName, "Function name") +
+        centerAndPadding(cellSizes.functionName, "Function name") +
         vertical +
-        centerAndPadding(tableWidth.passed, "Passed?") +
+        centerAndPadding(cellSizes.passed, "Passed?") +
         vertical;
 
     console.log(
         leftCorner +
-            horizontal.repeat(tableWidth.functionName + tableWidth.passed + 1) +
+            horizontal.repeat(cellSizes.functionName + cellSizes.passed + 1) +
             rightCorner
     );
     console.log(headers);
 
     for (const result of results) {
-        viewSingleFileResult(result, tableWidth);
+        viewSingleFileResult(result, cellSizes);
     }
     console.log(
         bottomLeftCorner +
-            horizontal.repeat(tableWidth.functionName) +
-            horizontal.repeat(tableWidth.passed + 1) +
+            horizontal.repeat(cellSizes.functionName) +
+            horizontal.repeat(cellSizes.passed + 1) +
             bottomRightCorner
     );
 }
@@ -252,32 +252,32 @@ function viewMultipleFileResult(
 }
 
 function viewMultipleFileResults(results: MultipleFileResult[]): void {
-    const tableWidth = widestMultipleFileCellSizes(results);
+    const cellSizes = widestMultipleFileCellSizes(results);
     const headers =
         vertical +
-        centerAndPadding(tableWidth.fileName, "File name") +
+        centerAndPadding(cellSizes.fileName, "File name") +
         vertical +
-        centerAndPadding(tableWidth.passed, "Passed") +
+        centerAndPadding(cellSizes.passed, "Passed") +
         vertical +
-        centerAndPadding(tableWidth.failed, "Failed") +
+        centerAndPadding(cellSizes.failed, "Failed") +
         vertical;
 
     console.log(
         leftCorner +
             horizontal.repeat(
-                tableWidth.fileName + tableWidth.passed + tableWidth.failed + 2
+                cellSizes.fileName + cellSizes.passed + cellSizes.failed + 2
             ) +
             rightCorner
     );
     console.log(headers);
 
     for (const result of results) {
-        viewMultipleFileResult(result, tableWidth);
+        viewMultipleFileResult(result, cellSizes);
     }
     console.log(
         bottomLeftCorner +
             horizontal.repeat(
-                tableWidth.fileName + tableWidth.passed + tableWidth.failed + 2
+                cellSizes.fileName + cellSizes.passed + cellSizes.failed + 2
             ) +
             bottomRightCorner
     );
