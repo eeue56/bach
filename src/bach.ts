@@ -10,12 +10,14 @@ import {
     string,
     variableList,
 } from "@eeue56/baner";
-import chalk from "chalk";
+import * as chalkImport from "chalk";
 import glob from "fast-glob";
 import { promises as fsPromises } from "fs";
 import JSON5 from "json5";
 import * as path from "path";
 import { performance } from "perf_hooks";
+
+const chalk = new chalkImport.Instance();
 
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
