@@ -1,7 +1,20 @@
 import * as assert from "@eeue56/ts-assert";
+import { centerAndPadding } from "./bach";
+
+export function testShort() {
+    assert.strictEqual(2, 1 + 1);
+}
 
 export function testBasicAddition() {
     assert.strictEqual(2, 1 + 1);
+}
+
+export function testEvenCenterAndPadding() {
+    assert.deepStrictEqual(centerAndPadding(8, "true"), "  true  ");
+}
+
+export function testOddCenterAndPadding() {
+    assert.deepStrictEqual(centerAndPadding(8, "false"), "  false ");
 }
 
 export function testObjectEquality() {

@@ -10,6 +10,7 @@ import {
     string,
     variableList,
 } from "@eeue56/baner";
+import chalk from "chalk";
 import glob from "fast-glob";
 import { promises as fsPromises } from "fs";
 import JSON5 from "json5";
@@ -17,6 +18,259 @@ import * as path from "path";
 import { performance } from "perf_hooks";
 
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+
+type SingleFileResult = {
+    functionName: string;
+    passed: boolean;
+};
+
+type SingleFileCellSizes = {
+    functionName: number;
+    passed: number;
+};
+
+type MultipleFileResult = {
+    fileName: string;
+    passed: number;
+    failed: number;
+};
+
+type MultipleFileCellSizes = {
+    fileName: number;
+    passed: number;
+    failed: number;
+};
+
+function widestSingleFileCellSizes(
+    results: SingleFileResult[]
+): SingleFileCellSizes {
+    const cellSizes: SingleFileCellSizes = {
+        functionName: " Function name ".length,
+        passed: " Passed? ".length,
+    };
+
+    for (const result of results) {
+        if (cellSizes.functionName < result.functionName.length + 2) {
+            cellSizes.functionName = result.functionName.length + 2;
+        }
+
+        if (cellSizes.passed < `${result.passed}`.length + 2) {
+            cellSizes.passed = `${result.passed}`.length + 2;
+        }
+    }
+    return {
+        functionName:
+            cellSizes.functionName % 2 === 0
+                ? cellSizes.functionName
+                : cellSizes.functionName + 1,
+        passed:
+            cellSizes.passed % 2 === 0
+                ? cellSizes.passed
+                : cellSizes.passed + 1,
+    };
+}
+
+function widestMultipleFileCellSizes(
+    results: MultipleFileResult[]
+): MultipleFileCellSizes {
+    const cellSizes: MultipleFileCellSizes = {
+        fileName: " Function name ".length,
+        passed: " Passed ".length,
+        failed: " Failed ".length,
+    };
+
+    for (const result of results) {
+        if (cellSizes.fileName < result.fileName.length + 2) {
+            cellSizes.fileName = result.fileName.length + 2;
+        }
+
+        if (cellSizes.passed < `${result.passed}`.length + 2) {
+            cellSizes.passed = `${result.passed}`.length + 2;
+        }
+
+        if (cellSizes.failed < `${result.failed}`.length + 2) {
+            cellSizes.failed = `${result.failed}`.length + 2;
+        }
+    }
+    return {
+        fileName:
+            cellSizes.fileName % 2 === 0
+                ? cellSizes.fileName
+                : cellSizes.fileName + 1,
+        passed:
+            cellSizes.passed % 2 === 0
+                ? cellSizes.passed
+                : cellSizes.passed + 1,
+        failed:
+            cellSizes.failed % 2 === 0
+                ? cellSizes.failed
+                : cellSizes.failed + 1,
+    };
+}
+
+const horizontal = "─";
+const vertical = "│";
+const leftJoin = "├";
+const middleJoin = "┼";
+const rightJoin = "┤";
+const leftCorner = "┌";
+const rightCorner = "┐";
+const bottomLeftCorner = "└";
+const bottomRightCorner = "┘";
+
+export function centerAndPadding(cellSize: number, text: string): string {
+    const length = text.length;
+    const eitherSide = Math.floor((cellSize - length) / 2);
+
+    let extraLeft = 0;
+    if (text.length % 2 === 1) {
+        extraLeft = 1;
+    }
+    return " ".repeat(eitherSide + extraLeft) + text + " ".repeat(eitherSide);
+}
+
+function viewSingleFileResult(
+    result: SingleFileResult,
+    tableWidth: SingleFileCellSizes
+): void {
+    console.log(
+        leftJoin +
+            horizontal.repeat(tableWidth.functionName + tableWidth.passed + 1) +
+            rightJoin
+    );
+
+    const colouredFunctionName = result.passed
+        ? chalk.greenBright(
+              centerAndPadding(
+                  tableWidth.functionName,
+                  `${result.functionName}`
+              )
+          )
+        : chalk.red(
+              centerAndPadding(
+                  tableWidth.functionName,
+                  `${result.functionName}`
+              )
+          );
+
+    const colouredPassed = result.passed
+        ? chalk.greenBright(
+              centerAndPadding(tableWidth.passed, `${result.passed}`)
+          )
+        : chalk.red(centerAndPadding(tableWidth.passed, `${result.passed}`));
+
+    console.log(
+        vertical + colouredFunctionName + vertical + colouredPassed + vertical
+    );
+}
+
+function viewSingleFileResults(results: SingleFileResult[]): void {
+    const tableWidth = widestSingleFileCellSizes(results);
+    const headers =
+        vertical +
+        centerAndPadding(tableWidth.functionName, "Function name") +
+        vertical +
+        centerAndPadding(tableWidth.passed, "Passed?") +
+        vertical;
+
+    console.log(
+        leftCorner +
+            horizontal.repeat(tableWidth.functionName + tableWidth.passed + 1) +
+            rightCorner
+    );
+    console.log(headers);
+
+    for (const result of results) {
+        viewSingleFileResult(result, tableWidth);
+    }
+    console.log(
+        bottomLeftCorner +
+            horizontal.repeat(tableWidth.functionName + tableWidth.passed + 1) +
+            bottomRightCorner
+    );
+}
+
+function viewMultipleFileResult(
+    result: MultipleFileResult,
+    tableWidth: MultipleFileCellSizes
+): void {
+    console.log(
+        leftJoin +
+            horizontal.repeat(
+                tableWidth.fileName + tableWidth.passed + tableWidth.failed + 2
+            ) +
+            rightJoin
+    );
+
+    const colouredFileName =
+        result.failed === 0
+            ? chalk.greenBright(
+                  centerAndPadding(tableWidth.fileName, `${result.fileName}`)
+              )
+            : chalk.red(
+                  centerAndPadding(tableWidth.fileName, `${result.fileName}`)
+              );
+
+    const colouredPassed =
+        result.passed > 0
+            ? chalk.greenBright(
+                  centerAndPadding(tableWidth.passed, `${result.passed}`)
+              )
+            : chalk.red(
+                  centerAndPadding(tableWidth.passed, `${result.passed}`)
+              );
+
+    const colouredFailed =
+        result.failed === 0
+            ? chalk.greenBright(
+                  centerAndPadding(tableWidth.failed, `${result.failed}`)
+              )
+            : chalk.red(
+                  centerAndPadding(tableWidth.failed, `${result.failed}`)
+              );
+
+    console.log(
+        vertical +
+            colouredFileName +
+            vertical +
+            colouredPassed +
+            vertical +
+            colouredFailed +
+            vertical
+    );
+}
+
+function viewMultipleFileResults(results: MultipleFileResult[]): void {
+    const tableWidth = widestMultipleFileCellSizes(results);
+    const headers =
+        vertical +
+        centerAndPadding(tableWidth.fileName, "File name") +
+        vertical +
+        centerAndPadding(tableWidth.passed, "Passed") +
+        vertical +
+        centerAndPadding(tableWidth.failed, "Failed") +
+        vertical;
+
+    console.log(
+        leftCorner +
+            horizontal.repeat(
+                tableWidth.fileName + tableWidth.passed + tableWidth.failed + 2
+            ) +
+            rightCorner
+    );
+    console.log(headers);
+
+    for (const result of results) {
+        viewMultipleFileResult(result, tableWidth);
+    }
+    console.log(
+        bottomLeftCorner +
+            horizontal.repeat(
+                tableWidth.fileName + tableWidth.passed + tableWidth.failed + 2
+            ) +
+            bottomRightCorner
+    );
+}
 
 function isAsyncFunction(func: any): boolean {
     return Object.getPrototypeOf(func).constructor === AsyncFunction;
@@ -148,7 +402,9 @@ export async function runner(): Promise<any> {
                         passedTests += 1;
                     } catch (e) {
                         results[fileName][functionName] = false;
-                        console.error(`${fileName} ${functionName} failed.`);
+                        console.error(
+                            chalk.red(`${fileName} ${functionName} failed.`)
+                        );
                         console.error(e);
                     }
                 }
@@ -168,10 +424,7 @@ export async function runner(): Promise<any> {
     const endTime = performance.now();
 
     if (program.flags["file"].isPresent) {
-        const formattedResults: {
-            functionName: string;
-            passed: boolean;
-        }[] = [ ];
+        const formattedResults: SingleFileResult[] = [ ];
 
         for (const fileName of Object.keys(results)) {
             const functions = results[fileName];
@@ -184,11 +437,11 @@ export async function runner(): Promise<any> {
             }
         }
         if (onlyFails) {
-            console.table(
+            viewSingleFileResults(
                 formattedResults.filter((result) => result.passed === false)
             );
         } else {
-            console.table(formattedResults);
+            viewSingleFileResults(formattedResults);
         }
     } else {
         const formattedResults: {
@@ -210,11 +463,11 @@ export async function runner(): Promise<any> {
         });
 
         if (onlyFails) {
-            console.table(
+            viewMultipleFileResults(
                 formattedResults.filter((result) => result.failed > 0)
             );
         } else {
-            console.table(formattedResults);
+            viewMultipleFileResults(formattedResults);
         }
     }
 
