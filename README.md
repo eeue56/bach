@@ -27,12 +27,21 @@ You can also specify specific files or functions to run via flags:
   --file [string...]:		    Run a specific file
   --clean-exit:             Don't use process.exit even if tests fail
   --only-fails :		        Only show the tests that fail
-  --in-chunks number:           Run tests in chunks of N files (suitable for lower memory impact)
-  --chunk-start number:         Start running chunk at N
-
-
+  --in-chunks number:       Run tests in chunks of N files (suitable for lower memory impact)
+  --chunk-start number:     Start running chunk at N
+  -u, --update-snapshots :  Update the snapshots and exit
   -h, --help :		          Displays help message
 
+```
+
+## Snapshot tests
+
+Snapshots can be created by having a function called `snapshot{x}` exported inside the test files. On first run, it will create the snapshot files in `__snapshots__`. On subsequent runs, the contents within the snapshot files will be compared with the output from the function. For example:
+
+```typescript
+export async function snapshotNumber() {
+    return 9001;
+}
 ```
 
 ## Name
