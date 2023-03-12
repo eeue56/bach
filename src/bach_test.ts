@@ -53,3 +53,23 @@ export async function testAsyncFunctions() {
         }, 300);
     });
 }
+
+export async function snapshotString() {
+    return "Hello world!";
+}
+
+export async function snapshotNumber() {
+    return 9001;
+}
+
+export async function snapshotObject() {
+    return {
+        name: "Noah",
+        age: 30,
+        pets: [
+            {
+                name: "Frodo",
+            },
+        ],
+    };
+}

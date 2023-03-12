@@ -7,9 +7,11 @@ import {
     number,
     parse,
     parser,
+    Program,
     string,
     variableList,
 } from "@eeue56/baner";
+import assert from "assert";
 import glob from "fast-glob";
 import { promises as fsPromises } from "fs";
 import JSON5 from "json5";
@@ -287,6 +289,87 @@ function isAsyncFunction(func: any): boolean {
     return Object.getPrototypeOf(func).constructor === AsyncFunction;
 }
 
+async function updateSnapshots(
+    config: any,
+    program: Program,
+    filesToProcess: string[],
+    functionNamesToRun: string[] | null
+): Promise<void> {
+    let totalSnapshotsUpdated = 0;
+    await Promise.all(
+        filesToProcess.map(async (fileName: string): Promise<null> => {
+            return new Promise(async (resolve, reject): Promise<void> => {
+                fileName =
+                    program.flags.file.arguments.kind === "ok"
+                        ? path.join(process.cwd(), fileName)
+                        : fileName;
+                const baseFileName = path
+                    .basename(fileName)
+                    .split(".")
+                    .slice(0, -1)
+                    .join(".");
+
+                const extension = path.extname(fileName);
+                const isValidExtension =
+                    extension === ".js" || extension === ".ts";
+
+                if (!baseFileName.endsWith("test") || !isValidExtension) {
+                    return resolve(null);
+                }
+
+                console.log(`Found ${fileName}`);
+                const imported = await import(fileName);
+                for (const functionName of Object.keys(imported)) {
+                    if (!functionName.startsWith("snapshot")) {
+                        continue;
+                    }
+                    if (
+                        functionNamesToRun &&
+                        functionNamesToRun.indexOf(functionName) === -1
+                    )
+                        continue;
+
+                    const func = imported[functionName];
+                    const isAsync = isAsyncFunction(func);
+
+                    totalSnapshotsUpdated += 1;
+
+                    console.log(`Running ${functionName}`);
+
+                    let computedSnapshot;
+                    if (isAsync) {
+                        computedSnapshot = await func();
+                    } else {
+                        computedSnapshot = func();
+                    }
+
+                    const snapshotFileName = path.join(
+                        config.include[0].split("/")[0],
+                        `__snapshots__`,
+                        path.basename(fileName, ".ts"),
+                        functionName + ".ts"
+                    );
+
+                    let fileContents = computedSnapshot;
+
+                    const strToWrite = `
+export const ${functionName} = ${JSON.stringify(fileContents, null, 4)};
+                            `.trim();
+
+                    await fsPromises.mkdir(path.dirname(snapshotFileName), {
+                        recursive: true,
+                    });
+                    await fsPromises.writeFile(snapshotFileName, strToWrite);
+                }
+
+                resolve(null);
+            });
+        })
+    );
+
+    console.log(`Updated ${totalSnapshotsUpdated} snapshots.`);
+}
+
 export async function runner(): Promise<any> {
     const cliParser = parser([
         longFlag("function", "Run a specific function", variableList(string())),
@@ -303,6 +386,12 @@ export async function runner(): Promise<any> {
             number()
         ),
         longFlag("chunk-start", "Start running chunk at N", number()),
+        bothFlag(
+            "u",
+            "update-snapshots",
+            "Update the snapshots and exit",
+            empty()
+        ),
         bothFlag("h", "help", "Displays help message", empty()),
     ]);
 
@@ -364,6 +453,16 @@ export async function runner(): Promise<any> {
 
     const filesToProcess = files.slice(chunkStart, chunkStart + chunks);
 
+    if (program.flags["u/update-snapshots"].isPresent) {
+        await updateSnapshots(
+            config,
+            program,
+            filesToProcess,
+            functionNamesToRun
+        );
+        return;
+    }
+
     await Promise.all(
         filesToProcess.map(async (fileName: string): Promise<null> => {
             return new Promise(async (resolve, reject): Promise<void> => {
@@ -389,34 +488,108 @@ export async function runner(): Promise<any> {
                 console.log(`Found ${fileName}`);
                 const imported = await import(fileName);
                 for (const functionName of Object.keys(imported)) {
-                    if (!functionName.startsWith("test")) continue;
-                    if (
-                        functionNamesToRun &&
-                        functionNamesToRun.indexOf(functionName) === -1
-                    )
-                        continue;
+                    if (functionName.startsWith("test")) {
+                        if (
+                            functionNamesToRun &&
+                            functionNamesToRun.indexOf(functionName) === -1
+                        )
+                            continue;
 
-                    const func = imported[functionName];
-                    const isAsync = isAsyncFunction(func);
+                        const func = imported[functionName];
+                        const isAsync = isAsyncFunction(func);
 
-                    totalTests += 1;
+                        totalTests += 1;
 
-                    if (!onlyFails) console.log(`Running ${functionName}`);
+                        if (!onlyFails) console.log(`Running ${functionName}`);
 
-                    try {
-                        if (isAsync) {
-                            await func();
-                        } else {
-                            func();
+                        try {
+                            if (isAsync) {
+                                await func();
+                            } else {
+                                func();
+                            }
+                            results[fileName][functionName] = true;
+                            passedTests += 1;
+                        } catch (e) {
+                            results[fileName][functionName] = false;
+                            console.error(
+                                chalk.red(`${fileName} ${functionName} failed.`)
+                            );
+                            console.error(e);
                         }
-                        results[fileName][functionName] = true;
-                        passedTests += 1;
-                    } catch (e) {
-                        results[fileName][functionName] = false;
-                        console.error(
-                            chalk.red(`${fileName} ${functionName} failed.`)
-                        );
-                        console.error(e);
+                    } else if (functionName.startsWith("snapshot")) {
+                        if (
+                            functionNamesToRun &&
+                            functionNamesToRun.indexOf(functionName) === -1
+                        )
+                            continue;
+
+                        const func = imported[functionName];
+                        const isAsync = isAsyncFunction(func);
+
+                        totalTests += 1;
+
+                        if (!onlyFails) console.log(`Running ${functionName}`);
+
+                        try {
+                            let computedSnapshot;
+                            if (isAsync) {
+                                computedSnapshot = await func();
+                            } else {
+                                computedSnapshot = func();
+                            }
+
+                            const snapshotFileName = path.join(
+                                config.include[0].split("/")[0],
+                                `__snapshots__`,
+                                path.basename(fileName, ".ts"),
+                                functionName + ".ts"
+                            );
+
+                            let fileContents = computedSnapshot;
+
+                            try {
+                                fileContents = (
+                                    await import(
+                                        path.join(
+                                            process.cwd(),
+                                            snapshotFileName
+                                        )
+                                    )
+                                )[functionName];
+                            } catch (e) {
+                                console.log(
+                                    "Creating snapshot for the first time..."
+                                );
+
+                                const strToWrite = `
+export const ${functionName} = ${JSON.stringify(fileContents, null, 4)};
+                                `.trim();
+
+                                await fsPromises.mkdir(
+                                    path.dirname(snapshotFileName),
+                                    { recursive: true }
+                                );
+                                await fsPromises.writeFile(
+                                    snapshotFileName,
+                                    strToWrite
+                                );
+                            }
+
+                            assert.deepStrictEqual(
+                                computedSnapshot,
+                                fileContents
+                            );
+
+                            results[fileName][functionName] = true;
+                            passedTests += 1;
+                        } catch (e) {
+                            results[fileName][functionName] = false;
+                            console.error(
+                                chalk.red(`${fileName} ${functionName} failed.`)
+                            );
+                            console.error(e);
+                        }
                     }
                 }
 
@@ -455,11 +628,9 @@ export async function runner(): Promise<any> {
             viewSingleFileResults(formattedResults);
         }
     } else {
-        const formattedResults: {
-            fileName: string;
-            passed: number;
-            failed: number;
-        }[] = Object.entries(results).map(([ fileName, functions ]) => {
+        const formattedResults: MultipleFileResult[] = Object.entries(
+            results
+        ).map(([ fileName, functions ]) => {
             let passed = 0;
             Object.entries(functions).forEach(([ functionName, didPass ]) => {
                 if (didPass) passed += 1;
