@@ -33,6 +33,7 @@
     },
     "devDependencies": {
         "@eeue56/ts-assert": "^0.0.2",
-        "prettier": "github:eeue56/prettier#feat/spacing-around-square-brackets"
+        "prettier": "github:eeue56/prettier#feat/spacing-around-square-brackets",
+        "ts-node": "^10.9.1"
     }
 }
