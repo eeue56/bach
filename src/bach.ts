@@ -370,6 +370,8 @@ export const ${functionName} = ${JSON.stringify(fileContents, null, 4)};
     console.log(`Updated ${totalSnapshotsUpdated} snapshots.`);
 }
 
+type Results = { [filename: string]: { [functionName: string]: boolean } };
+
 export async function runner(): Promise<any> {
     const cliParser = parser([
         longFlag("function", "Run a specific function", variableList(string())),
@@ -435,8 +437,7 @@ export async function runner(): Promise<any> {
         ? fileNamesToRun
         : await glob(config.include, { absolute: true });
 
-    const results: { [filename: string]: { [functionName: string]: boolean } } =
-        {};
+    const results: Results = {};
 
     let passedTests = 0;
     let totalTests = 0;
