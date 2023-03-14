@@ -289,6 +289,23 @@ function isAsyncFunction(func: any): boolean {
     return Object.getPrototypeOf(func).constructor === AsyncFunction;
 }
 
+function getSnapshotFileName(
+    config: any,
+    fileName: string,
+    functionName: string
+): string {
+    return path.join(
+        config.include[0].split("/")[0],
+        `__snapshots__`,
+        path
+            .relative(process.cwd(), fileName)
+            .split(".")
+            .slice(0, -1)
+            .join("."),
+        functionName + ".ts"
+    );
+}
+
 async function updateSnapshots(
     config: any,
     program: Program,
@@ -343,12 +360,13 @@ async function updateSnapshots(
                         computedSnapshot = func();
                     }
 
-                    const snapshotFileName = path.join(
-                        config.include[0].split("/")[0],
-                        `__snapshots__`,
-                        path.basename(fileName, ".ts"),
-                        functionName + ".ts"
+                    const snapshotFileName = getSnapshotFileName(
+                        config,
+                        fileName,
+                        functionName
                     );
+
+                    console.log("writing to ", snapshotFileName);
 
                     let fileContents = computedSnapshot;
 
@@ -540,11 +558,10 @@ export async function runner(): Promise<any> {
                                 computedSnapshot = func();
                             }
 
-                            const snapshotFileName = path.join(
-                                config.include[0].split("/")[0],
-                                `__snapshots__`,
-                                path.basename(fileName, ".ts"),
-                                functionName + ".ts"
+                            const snapshotFileName = getSnapshotFileName(
+                                config,
+                                fileName,
+                                functionName
                             );
 
                             let fileContents = computedSnapshot;
