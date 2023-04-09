@@ -499,8 +499,13 @@ export async function runner(): Promise<any> {
                 const isValidExtension =
                     extension === ".js" || extension === ".ts";
 
-                if (!baseFileName.endsWith("test") || !isValidExtension) {
-                    return resolve(null);
+                const isASpecificFile =
+                    program.flags.file.arguments.kind === "ok";
+
+                if (!isASpecificFile) {
+                    if (!baseFileName.endsWith("test") || !isValidExtension) {
+                        return resolve(null);
+                    }
                 }
 
                 results[fileName] = {};
