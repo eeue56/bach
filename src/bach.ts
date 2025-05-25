@@ -52,7 +52,7 @@ const chalk = {
 };
 
 function widestSingleFileCellSizes(
-    results: SingleFileResult[]
+    results: SingleFileResult[],
 ): SingleFileCellSizes {
     const cellSizes: SingleFileCellSizes = {
         functionName: " Function name ".length,
@@ -81,7 +81,7 @@ function widestSingleFileCellSizes(
 }
 
 function widestMultipleFileCellSizes(
-    results: MultipleFileResult[]
+    results: MultipleFileResult[],
 ): MultipleFileCellSizes {
     const cellSizes: MultipleFileCellSizes = {
         fileName: " Function name ".length,
@@ -141,28 +141,28 @@ export function centerAndPadding(cellSize: number, text: string): string {
 
 function viewSingleFileResult(
     result: SingleFileResult,
-    tableWidth: SingleFileCellSizes
+    tableWidth: SingleFileCellSizes,
 ): void {
     console.log(
         leftJoin +
             horizontal.repeat(tableWidth.functionName) +
             middleJoin +
             horizontal.repeat(tableWidth.passed) +
-            rightJoin
+            rightJoin,
     );
 
     const colouredFunctionName = result.passed
         ? chalk.green(
               centerAndPadding(
                   tableWidth.functionName,
-                  `${result.functionName}`
-              )
+                  `${result.functionName}`,
+              ),
           )
         : chalk.red(
               centerAndPadding(
                   tableWidth.functionName,
-                  `${result.functionName}`
-              )
+                  `${result.functionName}`,
+              ),
           );
 
     const colouredPassed = result.passed
@@ -170,7 +170,7 @@ function viewSingleFileResult(
         : chalk.red(centerAndPadding(tableWidth.passed, `${result.passed}`));
 
     console.log(
-        vertical + colouredFunctionName + vertical + colouredPassed + vertical
+        vertical + colouredFunctionName + vertical + colouredPassed + vertical,
     );
 }
 
@@ -186,7 +186,7 @@ function viewSingleFileResults(results: SingleFileResult[]): void {
     console.log(
         leftCorner +
             horizontal.repeat(cellSizes.functionName + cellSizes.passed + 1) +
-            rightCorner
+            rightCorner,
     );
     console.log(headers);
 
@@ -197,13 +197,13 @@ function viewSingleFileResults(results: SingleFileResult[]): void {
         bottomLeftCorner +
             horizontal.repeat(cellSizes.functionName) +
             horizontal.repeat(cellSizes.passed + 1) +
-            bottomRightCorner
+            bottomRightCorner,
     );
 }
 
 function viewMultipleFileResult(
     result: MultipleFileResult,
-    tableWidth: MultipleFileCellSizes
+    tableWidth: MultipleFileCellSizes,
 ): void {
     console.log(
         leftJoin +
@@ -212,34 +212,34 @@ function viewMultipleFileResult(
             horizontal.repeat(tableWidth.passed) +
             middleJoin +
             horizontal.repeat(tableWidth.failed) +
-            rightJoin
+            rightJoin,
     );
 
     const colouredFileName =
         result.failed === 0
             ? chalk.green(
-                  centerAndPadding(tableWidth.fileName, `${result.fileName}`)
+                  centerAndPadding(tableWidth.fileName, `${result.fileName}`),
               )
             : chalk.red(
-                  centerAndPadding(tableWidth.fileName, `${result.fileName}`)
+                  centerAndPadding(tableWidth.fileName, `${result.fileName}`),
               );
 
     const colouredPassed =
         result.passed > 0
             ? chalk.green(
-                  centerAndPadding(tableWidth.passed, `${result.passed}`)
+                  centerAndPadding(tableWidth.passed, `${result.passed}`),
               )
             : chalk.red(
-                  centerAndPadding(tableWidth.passed, `${result.passed}`)
+                  centerAndPadding(tableWidth.passed, `${result.passed}`),
               );
 
     const colouredFailed =
         result.failed === 0
             ? chalk.green(
-                  centerAndPadding(tableWidth.failed, `${result.failed}`)
+                  centerAndPadding(tableWidth.failed, `${result.failed}`),
               )
             : chalk.red(
-                  centerAndPadding(tableWidth.failed, `${result.failed}`)
+                  centerAndPadding(tableWidth.failed, `${result.failed}`),
               );
 
     console.log(
@@ -249,7 +249,7 @@ function viewMultipleFileResult(
             colouredPassed +
             vertical +
             colouredFailed +
-            vertical
+            vertical,
     );
 }
 
@@ -267,9 +267,9 @@ function viewMultipleFileResults(results: MultipleFileResult[]): void {
     console.log(
         leftCorner +
             horizontal.repeat(
-                cellSizes.fileName + cellSizes.passed + cellSizes.failed + 2
+                cellSizes.fileName + cellSizes.passed + cellSizes.failed + 2,
             ) +
-            rightCorner
+            rightCorner,
     );
     console.log(headers);
 
@@ -279,9 +279,9 @@ function viewMultipleFileResults(results: MultipleFileResult[]): void {
     console.log(
         bottomLeftCorner +
             horizontal.repeat(
-                cellSizes.fileName + cellSizes.passed + cellSizes.failed + 2
+                cellSizes.fileName + cellSizes.passed + cellSizes.failed + 2,
             ) +
-            bottomRightCorner
+            bottomRightCorner,
     );
 }
 
@@ -292,7 +292,7 @@ function isAsyncFunction(func: any): boolean {
 function getSnapshotFileName(
     config: any,
     fileName: string,
-    functionName: string
+    functionName: string,
 ): string {
     return path.join(
         config.include[0].split("/")[0],
@@ -302,7 +302,7 @@ function getSnapshotFileName(
             .split(".")
             .slice(0, -1)
             .join("."),
-        functionName + ".ts"
+        functionName + ".ts",
     );
 }
 
@@ -310,14 +310,14 @@ async function updateSnapshots(
     config: any,
     program: Program,
     filesToProcess: string[],
-    functionNamesToRun: string[] | null
+    functionNamesToRun: string[] | null,
 ): Promise<void> {
     let totalSnapshotsUpdated = 0;
     await Promise.all(
         filesToProcess.map(async (fileName: string): Promise<null> => {
             return new Promise(async (resolve, reject): Promise<void> => {
                 fileName =
-                    program.flags.file.arguments.kind === "ok"
+                    program.flags.file.arguments.kind === "Ok"
                         ? path.join(process.cwd(), fileName)
                         : fileName;
                 const baseFileName = path
@@ -363,7 +363,7 @@ async function updateSnapshots(
                     const snapshotFileName = getSnapshotFileName(
                         config,
                         fileName,
-                        functionName
+                        functionName,
                     );
 
                     console.log("writing to ", snapshotFileName);
@@ -382,7 +382,7 @@ export const ${functionName} = ${JSON.stringify(fileContents, null, 4)};
 
                 resolve(null);
             });
-        })
+        }),
     );
 
     console.log(`Updated ${totalSnapshotsUpdated} snapshots.`);
@@ -397,20 +397,20 @@ export async function runner(): Promise<any> {
         longFlag(
             "clean-exit",
             "Don't use process.exit even if tests fail",
-            empty()
+            empty(),
         ),
         longFlag("only-fails", "Only show the tests that fail", empty()),
         longFlag(
             "in-chunks",
             "Run tests in chunks of N files (suitable for lower memory impact)",
-            number()
+            number(),
         ),
         longFlag("chunk-start", "Start running chunk at N", number()),
         bothFlag(
             "u",
             "update-snapshots",
             "Update the snapshots and exit",
-            empty()
+            empty(),
         ),
         bothFlag("h", "help", "Displays help message", empty()),
     ]);
@@ -425,12 +425,12 @@ export async function runner(): Promise<any> {
     const onlyFails = program.flags["only-fails"].isPresent;
 
     const functionNamesToRun: string[] | null =
-        program.flags.function.arguments.kind === "ok"
+        program.flags.function.arguments.kind === "Ok"
             ? (program.flags.function.arguments.value as string[])
             : null;
 
     const fileNamesToRun: string[] | null =
-        program.flags.file.arguments.kind === "ok"
+        program.flags.file.arguments.kind === "Ok"
             ? (program.flags.file.arguments.value as string[])
             : null;
 
@@ -442,7 +442,7 @@ export async function runner(): Promise<any> {
         console.log(`Looking for tests in ${config.include}...`);
         if (!config.include) {
             console.error(
-                "include was not set in tsconfig, not sure where to look for tests"
+                "include was not set in tsconfig, not sure where to look for tests",
             );
             console.error("Quitting...");
             return;
@@ -477,7 +477,7 @@ export async function runner(): Promise<any> {
             config,
             program,
             filesToProcess,
-            functionNamesToRun
+            functionNamesToRun,
         );
         return;
     }
@@ -486,7 +486,7 @@ export async function runner(): Promise<any> {
         filesToProcess.map(async (fileName: string): Promise<null> => {
             return new Promise(async (resolve, reject): Promise<void> => {
                 fileName =
-                    program.flags.file.arguments.kind === "ok"
+                    program.flags.file.arguments.kind === "Ok"
                         ? path.join(process.cwd(), fileName)
                         : fileName;
                 const baseFileName = path
@@ -500,7 +500,7 @@ export async function runner(): Promise<any> {
                     extension === ".js" || extension === ".ts";
 
                 const isASpecificFile =
-                    program.flags.file.arguments.kind === "ok";
+                    program.flags.file.arguments.kind === "Ok";
 
                 if (!isASpecificFile) {
                     if (!baseFileName.endsWith("test") || !isValidExtension) {
@@ -537,7 +537,9 @@ export async function runner(): Promise<any> {
                         } catch (e) {
                             results[fileName][functionName] = false;
                             console.error(
-                                chalk.red(`${fileName} ${functionName} failed.`)
+                                chalk.red(
+                                    `${fileName} ${functionName} failed.`,
+                                ),
                             );
                             console.error(e);
                         }
@@ -566,7 +568,7 @@ export async function runner(): Promise<any> {
                             const snapshotFileName = getSnapshotFileName(
                                 config,
                                 fileName,
-                                functionName
+                                functionName,
                             );
 
                             let fileContents = computedSnapshot;
@@ -576,13 +578,13 @@ export async function runner(): Promise<any> {
                                     await import(
                                         path.join(
                                             process.cwd(),
-                                            snapshotFileName
+                                            snapshotFileName,
                                         )
                                     )
                                 )[functionName];
                             } catch (e) {
                                 console.log(
-                                    "Creating snapshot for the first time..."
+                                    "Creating snapshot for the first time...",
                                 );
 
                                 const strToWrite = `
@@ -591,17 +593,17 @@ export const ${functionName} = ${JSON.stringify(fileContents, null, 4)};
 
                                 await fsPromises.mkdir(
                                     path.dirname(snapshotFileName),
-                                    { recursive: true }
+                                    { recursive: true },
                                 );
                                 await fsPromises.writeFile(
                                     snapshotFileName,
-                                    strToWrite
+                                    strToWrite,
                                 );
                             }
 
                             assert.deepStrictEqual(
                                 computedSnapshot,
-                                fileContents
+                                fileContents,
                             );
 
                             results[fileName][functionName] = true;
@@ -609,7 +611,9 @@ export const ${functionName} = ${JSON.stringify(fileContents, null, 4)};
                         } catch (e) {
                             results[fileName][functionName] = false;
                             console.error(
-                                chalk.red(`${fileName} ${functionName} failed.`)
+                                chalk.red(
+                                    `${fileName} ${functionName} failed.`,
+                                ),
                             );
                             console.error(e);
                         }
@@ -618,20 +622,20 @@ export const ${functionName} = ${JSON.stringify(fileContents, null, 4)};
 
                 resolve(null);
             });
-        })
+        }),
     );
     if (filesToProcess.length < files.length) {
         console.log(
             `Ran ${chunks} files, starting at ${chunkStart}, out of ${
                 files.length
-            } total. New start should be ${chunkStart + chunks}`
+            } total. New start should be ${chunkStart + chunks}`,
         );
     }
 
     const endTime = performance.now();
 
     if (program.flags["file"].isPresent) {
-        const formattedResults: SingleFileResult[] = [ ];
+        const formattedResults: SingleFileResult[] = [];
 
         for (const fileName of Object.keys(results)) {
             const functions = results[fileName];
@@ -645,17 +649,17 @@ export const ${functionName} = ${JSON.stringify(fileContents, null, 4)};
         }
         if (onlyFails) {
             viewSingleFileResults(
-                formattedResults.filter((result) => result.passed === false)
+                formattedResults.filter((result) => result.passed === false),
             );
         } else {
             viewSingleFileResults(formattedResults);
         }
     } else {
         const formattedResults: MultipleFileResult[] = Object.entries(
-            results
-        ).map(([ fileName, functions ]) => {
+            results,
+        ).map(([fileName, functions]) => {
             let passed = 0;
-            Object.entries(functions).forEach(([ functionName, didPass ]) => {
+            Object.entries(functions).forEach(([functionName, didPass]) => {
                 if (didPass) passed += 1;
             });
             const failed = Object.keys(functions).length - passed;
@@ -669,7 +673,7 @@ export const ${functionName} = ${JSON.stringify(fileContents, null, 4)};
 
         if (onlyFails) {
             viewMultipleFileResults(
-                formattedResults.filter((result) => result.failed > 0)
+                formattedResults.filter((result) => result.failed > 0),
             );
         } else {
             viewMultipleFileResults(formattedResults);
@@ -678,8 +682,8 @@ export const ${functionName} = ${JSON.stringify(fileContents, null, 4)};
 
     console.log(
         `Ran ${totalTests} tests in ${Math.floor(
-            endTime - startTime
-        )}ms. ${passedTests} tests passed, ${totalTests - passedTests} failed`
+            endTime - startTime,
+        )}ms. ${passedTests} tests passed, ${totalTests - passedTests} failed`,
     );
 
     if (

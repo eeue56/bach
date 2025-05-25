@@ -1,9 +1,9 @@
 export const snapshotObject = {
-    "name": "Noah",
-    "age": 30,
-    "pets": [
+    name: "Noah",
+    age: 30,
+    pets: [
         {
-            "name": "Frodo"
-        }
-    ]
+            name: "Frodo",
+        },
+    ],
 };

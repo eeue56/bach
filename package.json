@@ -25,15 +25,15 @@
     },
     "homepage": "https://github.com/eeue56/bach#readme",
     "dependencies": {
-        "@eeue56/baner": "^0.0.1",
-        "@types/node": "^14.14.35",
-        "fast-glob": "^3.2.5",
-        "json5": "^2.2.0",
-        "typescript": "^4.2.3"
+        "@eeue56/baner": "^0.0.3",
+        "@types/node": "^22.15.21",
+        "fast-glob": "^3.3.3",
+        "json5": "^2.2.3"
     },
     "devDependencies": {
+        "typescript": "^5.8.3",
         "@eeue56/ts-assert": "^0.0.2",
-        "prettier": "github:eeue56/prettier#feat/spacing-around-square-brackets",
-        "ts-node": "^10.9.1"
+        "prettier": "^3.5.3",
+        "ts-node": "^10.9.2"
     }
 }
