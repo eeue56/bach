@@ -475,6 +475,22 @@ export async function runner(): Promise<any> {
         ? fileNamesToRun
         : await glob(includes, { absolute: true });
 
+    // warn if no files are found
+    if (files.length === 0) {
+        console.log("No matching files were found");
+        if (fileNamesToRun) {
+            if (fileNamesToRun.length === 1) {
+                console.log(`Does ${fileNamesToRun.join()} exist?`);
+            } else {
+                console.log(`Do ${fileNamesToRun.join(", ")} exist?`);
+            }
+        } else {
+            console.log(
+                `Does the 'include' found in tsconfig (${includes}) include the right files?`,
+            );
+        }
+    }
+
     const results: Results = {};
 
     let passedTests = 0;
