@@ -390,6 +390,21 @@ export const ${functionName} = ${JSON.stringify(fileContents, null, 4)};
 
 type Results = { [filename: string]: { [functionName: string]: boolean } };
 
+/**
+ * Turn includes (e.g `src`) into glob-friendly versions (e.g `src/**`)
+ */
+function globifyIncludes(includes: string[]): string[] {
+    return includes.map((pattern) => {
+        if (pattern.endsWith("/")) {
+            return `${pattern}**`;
+        } else if (!pattern.endsWith("*")) {
+            return `${pattern}/**`;
+        }
+
+        return pattern;
+    });
+}
+
 export async function runner(): Promise<any> {
     const cliParser = parser([
         longFlag("function", "Run a specific function", variableList(string())),
@@ -451,9 +466,14 @@ export async function runner(): Promise<any> {
         console.log("Running provided filenames...");
     }
 
+    let includes: string[] = [];
+    if (config.include) {
+        includes = globifyIncludes(config.include as string[]);
+    }
+
     const files = fileNamesToRun
         ? fileNamesToRun
-        : await glob(config.include, { absolute: true });
+        : await glob(includes, { absolute: true });
 
     const results: Results = {};
 
