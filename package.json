@@ -4,17 +4,17 @@
     "description": "A simple TypeScript test runner inspired by Pytest.",
     "main": "src/bach.js",
     "exports": {
-        "require": "./build/bach.js",
-        "import": "./src/bach.ts"
+        "require": "./build/bach.cjs",
+        "import": "./build/bach.mjs"
     },
     "type": "module",
     "scripts": {
         "test": "tsc -p tsconfig.json && node src/bach.ts",
-        "build-legacy": "npx esbuild --bundle src/bach.ts --outfile=build/bach.cjs --platform=node",
+        "build": "npx esbuild --bundle src/bach.ts --outfile=build/bach.cjs --platform=node && npx esbuild --bundle src/bach.ts --outfile=build/bach.mjs --platform=node --format=esm",
         "format": "npx prettier --write ."
     },
     "bin": {
-        "bach": "src/bach.ts"
+        "bach": "./build/bach.mjs"
     },
     "repository": {
         "type": "git",
