@@ -16,8 +16,7 @@
         "format": "npx prettier --write ."
     },
     "bin": {
-        "bach": "./build/bach.mjs",
-        "@eeue56/bach": "./build/bach.mjs"
+        "bach": "build/bach.mjs"
     },
     "repository": {
         "type": "git",
