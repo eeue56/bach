@@ -740,13 +740,17 @@ export const ${functionName} = ${JSON.stringify(fileContents, null, 4)};
 }
 
 const isMain = () => {
+    const entryPointPath = fileURLToPath(`file://${process.argv[1]}`);
+
+    if (entryPointPath.endsWith(".bin/bach")) {
+        return true;
+    }
+
     if (!import.meta.url) {
         return require.main === module;
     }
+
     const currentFilePath = fileURLToPath(import.meta.url);
-
-    const entryPointPath = fileURLToPath(`file://${process.argv[1]}`);
-
     return currentFilePath === entryPointPath;
 };
 
