@@ -1,5 +1,15 @@
-#!/usr/bin/env ts-node
-import {
+#!/usr/bin/env node
+import type { Program } from "@eeue56/baner";
+import baner from "@eeue56/baner";
+import assert from "assert";
+import { promises as fsPromises } from "fs";
+import { glob } from "fs/promises";
+import JSON5 from "json5";
+import * as path from "path";
+import { performance } from "perf_hooks";
+import { fileURLToPath } from "url";
+
+const {
     bothFlag,
     empty,
     help,
@@ -7,16 +17,9 @@ import {
     number,
     parse,
     parser,
-    Program,
     string,
     variableList,
-} from "@eeue56/baner";
-import assert from "assert";
-import glob from "fast-glob";
-import { promises as fsPromises } from "fs";
-import JSON5 from "json5";
-import * as path from "path";
-import { performance } from "perf_hooks";
+} = baner;
 
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
@@ -471,9 +474,15 @@ export async function runner(): Promise<any> {
         includes = globifyIncludes(config.include as string[]);
     }
 
-    const files = fileNamesToRun
-        ? fileNamesToRun
-        : await glob(includes, { absolute: true });
+    const files = fileNamesToRun ? fileNamesToRun : [];
+
+    if (!fileNamesToRun) {
+        for await (const file of glob(includes, { withFileTypes: true })) {
+            if (file.isFile()) {
+                files.push(path.join(file.parentPath, file.name));
+            }
+        }
+    }
 
     // warn if no files are found
     if (files.length === 0) {
@@ -730,6 +739,17 @@ export const ${functionName} = ${JSON.stringify(fileContents, null, 4)};
     }
 }
 
-if (require.main === module) {
+const isMain = () => {
+    if (!import.meta.url) {
+        return require.main === module;
+    }
+    const currentFilePath = fileURLToPath(import.meta.url);
+
+    const entryPointPath = fileURLToPath(`file://${process.argv[1]}`);
+
+    return currentFilePath === entryPointPath;
+};
+
+if (isMain()) {
     runner();
 }

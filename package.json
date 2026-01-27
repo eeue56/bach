@@ -3,12 +3,17 @@
     "version": "0.2.1",
     "description": "A simple TypeScript test runner inspired by Pytest.",
     "main": "src/bach.js",
+    "exports": {
+        "require": "./build/bach.js",
+        "import": "./src/bach.ts"
+    },
+    "type": "module",
     "scripts": {
-        "test": "ts-node src/bach.ts",
-        "build": "tsc -p tsconfig.json",
+        "test": "tsc -p tsconfig.json && node src/bach.ts",
+        "build-legacy": "npx esbuild --bundle src/bach.ts --outfile=build/bach.cjs --platform=node",
         "format": "npx prettier --write ."
     },
-    "bin": "build/bach.js",
+    "bin": "src/bach.ts",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/eeue56/bach.git"
@@ -27,13 +32,12 @@
     "dependencies": {
         "@eeue56/baner": "^0.0.3",
         "@types/node": "^22.15.21",
-        "fast-glob": "^3.3.3",
         "json5": "^2.2.3"
     },
     "devDependencies": {
-        "typescript": "^5.8.3",
         "@eeue56/ts-assert": "^0.0.2",
+        "esbuild": "^0.27.2",
         "prettier": "^3.5.3",
-        "ts-node": "^10.9.2"
+        "typescript": "^5.8.3"
     }
 }

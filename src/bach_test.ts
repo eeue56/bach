@@ -1,5 +1,5 @@
 import * as assert from "@eeue56/ts-assert";
-import { centerAndPadding } from "./bach";
+import { centerAndPadding } from "./bach.ts";
 
 export function testShort() {
     assert.strictEqual(2, 1 + 1);
