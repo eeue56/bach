@@ -13,7 +13,9 @@
         "build-legacy": "npx esbuild --bundle src/bach.ts --outfile=build/bach.cjs --platform=node",
         "format": "npx prettier --write ."
     },
-    "bin": "src/bach.ts",
+    "bin": {
+        "bach": "src/bach.ts"
+    },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/eeue56/bach.git"
