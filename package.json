@@ -9,7 +9,7 @@
     },
     "type": "module",
     "scripts": {
-        "test": "tsc --noEmit tsconfig.json && node src/bach.ts",
+        "test": "tsc --noEmit -p tsconfig.json && node src/bach.ts",
         "build": "tsc -p tsconfig.json && npm run build-cjs && npm run build-mjs",
         "build-cjs": "npx esbuild --bundle src/bach.ts --outfile=build/bach.cjs --platform=node",
         "build-mjs": "npx esbuild --bundle src/bach.ts --outfile=build/bach.mjs --platform=node --format=esm",
