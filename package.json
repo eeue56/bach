@@ -1,6 +1,6 @@
 {
     "name": "@eeue56/bach",
-    "version": "0.2.2-1",
+    "version": "0.2.2-2",
     "description": "A simple TypeScript test runner inspired by Pytest.",
     "main": "build/bach.mjs",
     "exports": {
