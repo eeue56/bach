@@ -34,14 +34,14 @@
     },
     "homepage": "https://github.com/eeue56/bach#readme",
     "dependencies": {
-        "@eeue56/baner": "^0.0.3",
         "@types/node": "^22.15.21",
         "json5": "^2.2.3"
     },
     "devDependencies": {
+        "@eeue56/baner": "^1.0.0",
         "@eeue56/ts-assert": "^0.0.2",
         "esbuild": "^0.27.2",
         "prettier": "^3.5.3",
-        "typescript": "^5.8.3"
+        "typescript": "^5.9.3"
     }
 }

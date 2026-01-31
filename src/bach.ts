@@ -1,15 +1,6 @@
 #!/usr/bin/env node
-import type { Program } from "@eeue56/baner";
-import baner from "@eeue56/baner";
-import assert from "assert";
-import { promises as fsPromises } from "fs";
-import { glob } from "fs/promises";
-import JSON5 from "json5";
-import * as path from "path";
-import { performance } from "perf_hooks";
-import { fileURLToPath } from "url";
-
-const {
+import type { Result } from "@eeue56/baner";
+import {
     bothFlag,
     empty,
     help,
@@ -19,7 +10,14 @@ const {
     parser,
     string,
     variableList,
-} = baner;
+} from "@eeue56/baner";
+import assert from "assert";
+import { promises as fsPromises } from "fs";
+import { glob } from "fs/promises";
+import JSON5 from "json5";
+import * as path from "path";
+import { performance } from "perf_hooks";
+import { fileURLToPath } from "url";
 
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
@@ -311,7 +309,7 @@ function getSnapshotFileName(
 
 async function updateSnapshots(
     config: any,
-    program: Program,
+    fileArgument: Result<string[]>,
     filesToProcess: string[],
     functionNamesToRun: string[] | null,
 ): Promise<void> {
@@ -320,7 +318,7 @@ async function updateSnapshots(
         filesToProcess.map(async (fileName: string): Promise<null> => {
             return new Promise(async (resolve, reject): Promise<void> => {
                 fileName =
-                    program.flags.file.arguments.kind === "Ok"
+                    fileArgument.kind === "Ok"
                         ? path.join(process.cwd(), fileName)
                         : fileName;
                 const baseFileName = path
@@ -408,48 +406,45 @@ function globifyIncludes(includes: string[]): string[] {
     });
 }
 
-export async function runner(): Promise<any> {
-    const cliParser = parser([
-        longFlag("function", "Run a specific function", variableList(string())),
-        longFlag("file", "Run a specific file", variableList(string())),
-        longFlag(
-            "clean-exit",
-            "Don't use process.exit even if tests fail",
-            empty(),
-        ),
-        longFlag("only-fails", "Only show the tests that fail", empty()),
-        longFlag(
-            "in-chunks",
-            "Run tests in chunks of N files (suitable for lower memory impact)",
-            number(),
-        ),
-        longFlag("chunk-start", "Start running chunk at N", number()),
-        bothFlag(
-            "u",
-            "update-snapshots",
-            "Update the snapshots and exit",
-            empty(),
-        ),
-        bothFlag("h", "help", "Displays help message", empty()),
-    ]);
+const cliParser = parser(
+    longFlag("function", "Run a specific function", variableList(string())),
+    longFlag("file", "Run a specific file", variableList(string())),
+    longFlag(
+        "clean-exit",
+        "Don't use process.exit even if tests fail",
+        empty(),
+    ),
+    longFlag("only-fails", "Only show the tests that fail", empty()),
+    longFlag(
+        "in-chunks",
+        "Run tests in chunks of N files (suitable for lower memory impact)",
+        number(),
+    ),
+    longFlag("chunk-start", "Start running chunk at N", number()),
+    bothFlag("u", "update-snapshots", "Update the snapshots and exit", empty()),
+    bothFlag("h", "help", "Displays help message", empty()),
+);
 
+export async function runner(): Promise<any> {
     const program = parse(cliParser, process.argv);
 
-    if (program.flags["h/help"].isPresent) {
+    if (program.flags["help"].isPresent) {
         console.log(help(cliParser));
         return;
     }
 
-    const onlyFails = program.flags["only-fails"].isPresent;
+    const onlyFails =
+        program.flags["only-fails"].arguments.kind === "Ok" &&
+        program.flags["only-fails"].arguments.value;
 
     const functionNamesToRun: string[] | null =
         program.flags.function.arguments.kind === "Ok"
-            ? (program.flags.function.arguments.value as string[])
+            ? program.flags.function.arguments.value
             : null;
 
     const fileNamesToRun: string[] | null =
         program.flags.file.arguments.kind === "Ok"
-            ? (program.flags.file.arguments.value as string[])
+            ? program.flags.file.arguments.value
             : null;
 
     console.log("Looking for tsconfig...");
@@ -505,22 +500,27 @@ export async function runner(): Promise<any> {
     let passedTests = 0;
     let totalTests = 0;
 
-    const chunks = program.flags["in-chunks"].isPresent
-        ? (program.flags["in-chunks"].arguments as any).value
-        : files.length;
+    const chunks =
+        program.flags["in-chunks"].arguments.kind == "Ok"
+            ? program.flags["in-chunks"].arguments.value
+            : files.length;
 
-    const chunkStart = program.flags["chunk-start"].isPresent
-        ? (program.flags["chunk-start"].arguments as any).value
-        : 0;
+    const chunkStart =
+        program.flags["chunk-start"].arguments.kind == "Ok"
+            ? program.flags["chunk-start"].arguments.value
+            : 0;
 
     const startTime = performance.now();
 
     const filesToProcess = files.slice(chunkStart, chunkStart + chunks);
 
-    if (program.flags["u/update-snapshots"].isPresent) {
+    if (
+        program.flags["update-snapshots"].arguments.kind === "Ok" &&
+        program.flags["update-snapshots"].arguments.value
+    ) {
         await updateSnapshots(
             config,
-            program,
+            program.flags.file.arguments,
             filesToProcess,
             functionNamesToRun,
         );
@@ -679,7 +679,7 @@ export const ${functionName} = ${JSON.stringify(fileContents, null, 4)};
 
     const endTime = performance.now();
 
-    if (program.flags["file"].isPresent) {
+    if (program.flags["file"].arguments.kind === "Ok") {
         const formattedResults: SingleFileResult[] = [];
 
         for (const fileName of Object.keys(results)) {
@@ -731,10 +731,11 @@ export const ${functionName} = ${JSON.stringify(fileContents, null, 4)};
         )}ms. ${passedTests} tests passed, ${totalTests - passedTests} failed`,
     );
 
-    if (
-        totalTests - passedTests > 0 &&
-        !program.flags["clean-exit"].isPresent
-    ) {
+    const shouldCleanExit =
+        program.flags["clean-exit"].arguments.kind === "Ok" &&
+        program.flags["clean-exit"].arguments.value;
+
+    if (totalTests - passedTests > 0 && !shouldCleanExit) {
         process.exit(1);
     }
 }
